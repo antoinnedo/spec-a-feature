@@ -1834,6 +1834,66 @@ Supervised teams shall be organized by section names.
 **Assumptions:**
 **Open Issues:**
 
+
+### **UC-INS-nudge-non-submitters: The instructor nudges students with missing submissions**
+
+**UC ID and Name:** UC-INS-nudge-non-submitters: Nudge students with missing submissions
+**Created By:** Anthony Do
+**Date Created:** 01/Oct/26
+**Primary Actor:** instructor
+**Secondary Actors:** student
+**Trigger:** The instructor indicates to view students with missing submissions for a course section.
+**Description:** The instructor wants to identify students who have not submitted a weekly activity report or peer evaluation that is currently due and send reminders only to those students.
+
+**Preconditions:**
+- PRE-1. The instructor is logged into the system.
+- PRE-2. The instructor is assigned to the course section (BR-section-scoped-access).
+
+**Postconditions:**
+- POST-1. The instructor is shown the students with missing submissions that they are eligible to submit.
+- POST-2. A reminder is sent to each selected student whose applicable submission is still missing.
+- POST-3. The instructor is told which reminders could not be delivered.
+
+**Main Success Scenario:**
+1. The instructor indicates to view students with missing submissions for a course section.
+2. The system determines which weekly activity report and peer evaluation submissions are currently due.
+3. The system identifies students in the course section who are eligible to make each due submission.
+4. The system excludes students who already have the applicable submission.
+5. The system displays the remaining students and the submission each student is missing.
+6. The instructor selects one or more listed students to remind.
+7. The system sends each selected student a reminder identifying the missing submission.
+8. The system reports the reminder results to the instructor.
+9. Use case ends.
+
+**Extensions:**
+- **2a. A peer evaluation does not correspond to an eligible active week or its submission window has closed:**
+  - 2a1. The system does not treat that peer evaluation as an actionable missing submission (BR-active-weeks, BR-evaluation-submission-window).
+  - 2a2. Processing continues with other currently due submissions.
+- **3a. A student is not assigned to a team:**
+  - 3a1. The system excludes the student from submissions for which she is ineligible because she is not assigned to a team (BR-team-assignment-required).
+  - 3a2. Processing continues with the remaining students.
+- **4a. A student previously submitted an applicable submission but the submission no longer exists:**
+  - 4a1. The student is considered a non-submitter for that submission if she remains eligible to submit it.
+- **7a. The system cannot email one or more selected students:**
+  - 7a1. The system continues sending reminders to the remaining selected students rather than abandoning the batch.
+  - 7a2. The system reports to the instructor which reminders could not be delivered.
+  - 7a3. Use case ends.
+- **7b. A reminder would violate the permitted reminder frequency:**
+  - 7b1. The system does not send the additional reminder (BR-submission-reminder-frequency).
+  - 7b2. The system informs the instructor that the student was already reminded within the restricted interval.
+
+**Priority:** High
+**Frequency of Use:** Multiple times per week while weekly submissions are due.
+**Business Rules:** BR-section-scoped-access, BR-role-based-access, BR-team-assignment-required, BR-active-weeks, BR-evaluation-submission-window, BR-submission-reminder-frequency
+
+**Associated Information:**
+- Each displayed missing-submission entry identifies the student and whether the missing artifact is a weekly activity report or peer evaluation.
+- Weekly activity reports and peer evaluations are evaluated independently because their eligibility and submission rules differ.
+- Student submission information is shown only to an instructor authorized for the course section (BR-section-scoped-access).
+
+**Assumptions:**
+**Open Issues:**
+
 ## **Account**
 
 ### **UC-ACC-setup-student-account: The student sets up a student account**
