@@ -1843,56 +1843,64 @@ Supervised teams shall be organized by section names.
 **Primary Actor:** instructor
 **Secondary Actors:** student
 **Trigger:** The instructor indicates to view students with missing submissions for a course section.
-**Description:** The instructor wants to identify students who have not submitted a weekly activity report or peer evaluation that is currently due and send reminders only to those students.
+**Description:** The instructor wants to identify students who are currently missing a weekly activity report or peer evaluation they are eligible to submit, then send reminders only for those still-missing submissions.
 
 **Preconditions:**
 - PRE-1. The instructor is logged into the system.
 - PRE-2. The instructor is assigned to the course section (BR-section-scoped-access).
 
 **Postconditions:**
-- POST-1. The instructor is shown the students with missing submissions that they are eligible to submit.
-- POST-2. A reminder is sent to each selected student whose applicable submission is still missing.
-- POST-3. The instructor is told which reminders could not be delivered.
+- POST-1. The instructor is shown the students with actionable missing submissions in the course section.
+- POST-2. Each selected student receives at most one reminder email listing the selected submission types that are still missing and may still be submitted.
+- POST-3. The instructor is told which selected reminders were sent, skipped, or could not be delivered.
 
 **Main Success Scenario:**
 1. The instructor indicates to view students with missing submissions for a course section.
-2. The system determines which weekly activity report and peer evaluation submissions are currently due.
-3. The system identifies students in the course section who are eligible to make each due submission.
-4. The system excludes students who already have the applicable submission.
-5. The system displays the remaining students and the submission each student is missing.
-6. The instructor selects one or more listed students to remind.
-7. The system sends each selected student a reminder identifying the missing submission.
-8. The system reports the reminder results to the instructor.
-9. Use case ends.
+2. The system determines the submissions that are actionable for the current week: the current week's weekly activity report, and the previous week's peer evaluation when that evaluation is permitted by BR-active-weeks and BR-evaluation-submission-window.
+3. The system identifies students in the course section who are eligible to author those submissions (BR-team-assignment-required).
+4. For each eligible student, the system determines submission state:
+   - A weekly activity report is submitted for the current week when at least one activity belonging to that student exists for that week.
+   - A peer evaluation is submitted for the previous week when the student has submitted the evaluations required by UC-EVA-submit-evaluation for every team member required by that use case.
+5. The system displays each student who is missing at least one actionable submission and identifies the missing submission type or types.
+6. The instructor selects one or more displayed students and the missing submission types to remind.
+7. Immediately before sending, the system rechecks each selected submission's current submission state and the reminder-frequency rule.
+8. For each selected student who still has at least one reminder-eligible missing submission, the system sends one reminder email listing all such selected missing submission types.
+9. The system reports which reminders were sent, skipped, or could not be delivered.
+10. Use case ends.
 
 **Extensions:**
-- **2a. A peer evaluation does not correspond to an eligible active week or its submission window has closed:**
-  - 2a1. The system does not treat that peer evaluation as an actionable missing submission (BR-active-weeks, BR-evaluation-submission-window).
-  - 2a2. Processing continues with other currently due submissions.
+- **2a. The previous week is not an active week or the peer-evaluation submission window has closed:**
+  - 2a1. The system does not include a peer evaluation as an actionable missing submission (BR-active-weeks, BR-evaluation-submission-window).
+  - 2a2. Processing continues with other actionable submissions.
 - **3a. A student is not assigned to a team:**
-  - 3a1. The system excludes the student from submissions for which she is ineligible because she is not assigned to a team (BR-team-assignment-required).
+  - 3a1. The system excludes the student because she is not eligible to author either submission (BR-team-assignment-required).
   - 3a2. Processing continues with the remaining students.
-- **4a. A student previously submitted an applicable submission but the submission no longer exists:**
-  - 4a1. The student is considered a non-submitter for that submission if she remains eligible to submit it.
-- **7a. The system cannot email one or more selected students:**
-  - 7a1. The system continues sending reminders to the remaining selected students rather than abandoning the batch.
-  - 7a2. The system reports to the instructor which reminders could not be delivered.
-  - 7a3. Use case ends.
-- **7b. A reminder would violate the permitted reminder frequency:**
-  - 7b1. The system does not send the additional reminder (BR-submission-reminder-frequency).
-  - 7b2. The system informs the instructor that the student was already reminded within the restricted interval.
+- **4a. A student submitted and later deleted enough stored submission data that the definition in step 4 is no longer satisfied:**
+  - 4a1. The system treats that submission as missing if the student remains eligible to submit it.
+- **7a. A selected student submits an artifact after the list was displayed but before reminders are sent:**
+  - 7a1. The system removes that submission type from the student's reminder because it is no longer missing.
+  - 7a2. If no selected submission type remains missing for that student, the system sends no reminder to that student and reports it as skipped.
+- **7b. A selected reminder would violate the permitted reminder frequency:**
+  - 7b1. The system removes that submission type from the reminder (BR-submission-reminder-frequency).
+  - 7b2. If no selected submission type remains reminder-eligible for that student, the system sends no reminder to that student and reports it as skipped.
+- **8a. The system cannot email one or more selected students:**
+  - 8a1. The system continues sending reminders to the remaining selected students rather than abandoning the batch.
+  - 8a2. The system reports to the instructor which reminders could not be delivered.
+  - 8a3. Use case ends.
 
 **Priority:** High
-**Frequency of Use:** Multiple times per week while weekly submissions are due.
+**Frequency of Use:** Multiple times per week while weekly submissions are actionable.
 **Business Rules:** BR-section-scoped-access, BR-role-based-access, BR-team-assignment-required, BR-active-weeks, BR-evaluation-submission-window, BR-submission-reminder-frequency
 
 **Associated Information:**
-- Each displayed missing-submission entry identifies the student and whether the missing artifact is a weekly activity report or peer evaluation.
-- Weekly activity reports and peer evaluations are evaluated independently because their eligibility and submission rules differ.
-- Student submission information is shown only to an instructor authorized for the course section (BR-section-scoped-access).
+- The current weekly activity report is the report for the current ISO week.
+- A student's row may identify one missing submission type or both.
+- Submission records shown by this use case remain section-scoped student records and are handled under CO-ferpa.
+- The implementation may choose its repository queries, service decomposition, endpoint structure, and UI composition as long as the observable behavior above is preserved.
 
 **Assumptions:**
 **Open Issues:**
+
 
 ## **Account**
 
